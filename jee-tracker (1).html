@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="JEE Tracker"/>
+<meta name="theme-color" content="#0f0c1a"/>
+<title>JEE Tracker — Mosfique</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#0f0c1a;--bg2:#16112b;--surface:#1e1838;--surface2:#251f42;
+  --border:#2e2850;--border2:#3d3660;
+  --accent:#7c3aed;--accent2:#a855f7;--accent3:#c084fc;
+  --pink:#ec4899;--cyan:#06b6d4;--green:#10b981;--yellow:#f59e0b;--red:#ef4444;
+  --text:#f1f0ff;--text2:#a89fc0;--text3:#6b6380;
+  --ph:#818cf8;--ch:#34d399;--ma:#fb923c;--ot:#a78bfa;
+}
+html,body{height:100%;overscroll-behavior:none;}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:#3d3660;border-radius:99px;}
+@keyframes shimmer{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+@keyframes fadein{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+@keyframes slideup{from{opacity:0;transform:translateY(40px);}to{opacity:1;transform:none;}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px #7c3aed44;}50%{box-shadow:0 0 40px #7c3aed88;}}
+
+.header{background:linear-gradient(135deg,#0f0c1a,#16112b);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding-top:env(safe-area-inset-top);backdrop-filter:blur(20px);}
+.header-inner{max-width:480px;margin:0 auto;padding:0 16px;}
+.header-top{display:flex;align-items:center;justify-content:space-between;height:56px;}
+.logo-wrap{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:16px;}
+.logo-text{font-size:17px;font-weight:800;background:linear-gradient(90deg,var(--accent3),#e879f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.logo-by{font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;}
+.live-badge{display:flex;align-items:center;gap:5px;padding:5px 10px;background:#7c3aed18;border-radius:20px;border:1px solid #7c3aed44;}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--accent2);animation:pulse 1.2s infinite;}
+.live-text{font-size:10px;color:var(--accent3);font-weight:600;}
+
+.main{max-width:480px;margin:0 auto;padding:16px 14px 90px;}
+.tab-panel{display:none;flex-direction:column;gap:14px;}
+.tab-panel.active{display:flex;animation:fadein .25s ease;}
+
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(15,12,26,.95);border-top:1px solid var(--border);padding:8px 0 calc(8px + env(safe-area-inset-bottom));backdrop-filter:blur(20px);z-index:99;}
+.bottom-nav-inner{max-width:480px;margin:0 auto;display:flex;justify-content:space-around;}
+.nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;background:none;border:none;cursor:pointer;color:var(--text3);font-family:inherit;font-size:9px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;transition:all .2s;border-radius:10px;}
+.nav-btn.active{color:var(--accent2);}
+.nav-icon{font-size:18px;line-height:1;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px;}
+.stat-label{font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;font-weight:600;}
+.stat-val{font-size:24px;font-weight:800;line-height:1;letter-spacing:-1px;}
+.stat-sub{font-size:10px;color:var(--text3);margin-top:3px;}
+.section-title{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.3px;}
+.group-label{font-size:9px;color:var(--text3);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:8px;font-weight:700;padding-left:4px;}
+
+/* HERO */
+.hero-card{border-radius:22px;padding:20px;background:linear-gradient(135deg,#1e1838,#2d1f5e,#1e1838);border:1px solid var(--border2);position:relative;overflow:hidden;}
+.hero-card::before{content:"";position:absolute;top:-40px;right:-40px;width:150px;height:150px;background:radial-gradient(circle,#7c3aed22,transparent 70%);}
+.hero-hours{font-size:42px;font-weight:900;background:linear-gradient(90deg,var(--accent3),#e879f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;letter-spacing:-2px;}
+
+/* TASK CARDS */
+.task-card{border-radius:16px;padding:14px 14px 14px 16px;margin-bottom:8px;border:1px solid var(--border);background:var(--surface);transition:all .2s;position:relative;overflow:hidden;}
+.task-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;}
+.task-card.ph::before{background:var(--ph);}
+.task-card.ch::before{background:var(--ch);}
+.task-card.ma::before{background:var(--ma);}
+.task-card.ot::before{background:var(--ot);}
+.task-card.running{border-color:var(--accent);box-shadow:0 0 0 2px #7c3aed22;animation:glow 2s infinite;}
+.task-card.done-card{opacity:.55;}
+.task-row{display:flex;gap:10px;align-items:flex-start;}
+.check-btn{width:24px;height:24px;border-radius:7px;flex-shrink:0;margin-top:1px;border:2px solid var(--border2);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .2s;}
+.check-btn.done{border-color:var(--green);background:var(--green);}
+.task-body{flex:1;min-width:0;}
+.task-name{font-size:14px;font-weight:700;color:var(--text);line-height:1.3;}
+.task-name.struck{text-decoration:line-through;color:var(--text3);}
+.task-meta{font-size:11px;color:var(--text3);margin:3px 0 8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.dur-chip{background:var(--surface2);padding:1px 7px;border-radius:20px;color:var(--accent3);font-size:10px;font-weight:600;}
+.task-bottom{display:flex;align-items:center;gap:8px;}
+.timer-num{font-size:16px;font-weight:700;letter-spacing:2px;font-family:'Courier New',monospace;color:var(--text2);}
+.timer-num.live{color:var(--accent2);}
+.start-btn{padding:5px 14px;border-radius:20px;border:1.5px solid var(--accent);background:transparent;color:var(--accent2);font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit;}
+.start-btn.running{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;color:#fff;}
+.task-actions{display:flex;flex-direction:column;gap:2px;margin-left:4px;}
+.icon-btn{background:none;border:none;cursor:pointer;font-size:14px;padding:3px;color:var(--text3);border-radius:6px;}
+.live-pill{font-size:9px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;padding:2px 8px;border-radius:99px;font-weight:700;}
+.subj-chip{border-radius:6px;font-weight:700;display:inline-flex;align-items:center;vertical-align:middle;}
+.elapsed-done{font-size:11px;color:var(--green);font-weight:600;}
+
+/* EXAM TASK CARD */
+.exam-task-card{border-radius:16px;padding:16px;margin-bottom:10px;border:1.5px solid #f59e0b44;background:linear-gradient(135deg,#1e1838,#2a1800);position:relative;overflow:hidden;}
+.exam-task-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:#f59e0b;}
+.exam-task-pending{border-color:#f59e0b66;}
+.exam-task-done{border-color:#10b98166;background:linear-gradient(135deg,#1e1838,#001a10);opacity:.85;}
+.exam-badge{display:inline-flex;align-items:center;gap:4px;background:#f59e0b22;color:#f59e0b;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;}
+.exam-name-row{display:flex;justify-content:space-between;align-items:flex-start;}
+.exam-title{font-size:15px;font-weight:700;color:var(--text);}
+.exam-date-chip{font-size:10px;color:var(--text3);margin-top:3px;}
+.exam-score-display{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:10px 0 6px;}
+.exam-score-box{background:var(--surface2);border-radius:10px;padding:8px;text-align:center;}
+.esb-label{font-size:8px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;}
+.esb-val{font-size:16px;font-weight:800;}
+.exam-total-row{display:flex;justify-content:space-between;align-items:center;margin-top:4px;}
+.exam-total-score{font-size:20px;font-weight:900;}
+.exam-pct{font-size:12px;color:var(--text2);}
+.enter-marks-btn{padding:6px 14px;border-radius:20px;border:1.5px solid #f59e0b;background:transparent;color:#f59e0b;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;}
+.enter-marks-btn:active{background:#f59e0b;color:#000;}
+
+/* FAB */
+.fab{position:fixed;bottom:calc(70px + env(safe-area-inset-bottom));right:18px;width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 24px #7c3aed55;z-index:98;transition:all .2s;}
+.fab:active{transform:scale(.93);}
+.fab-exam{background:linear-gradient(135deg,#b45309,#ec4899);box-shadow:0 6px 24px #f59e0b44;}
+
+/* BUTTONS */
+.btn{padding:10px 22px;border-radius:12px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;border:none;transition:all .18s;}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
+.btn-exam{background:linear-gradient(135deg,#b45309,#ec4899);color:#fff;}
+.btn-ghost{background:var(--surface2);color:var(--text2);border:1px solid var(--border2);}
+.btn:active{transform:scale(.96);}
+
+/* INPUTS */
+.input{width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--border2);background:var(--bg2);font-family:inherit;font-size:14px;color:var(--text);outline:none;transition:border-color .2s;}
+.input:focus{border-color:var(--accent);}
+.label{font-size:10px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;display:block;margin-bottom:6px;font-weight:600;}
+.field{margin-bottom:14px;}
+.subj-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.subj-pick{padding:10px;border-radius:12px;cursor:pointer;font-family:inherit;font-size:13px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text2);transition:all .15s;font-weight:600;text-align:center;}
+.subj-pick.sel-ph{border-color:var(--ph);background:#1e1b4b;color:var(--ph);}
+.subj-pick.sel-ch{border-color:var(--ch);background:#064e3b;color:var(--ch);}
+.subj-pick.sel-ma{border-color:var(--ma);background:#431407;color:var(--ma);}
+.subj-pick.sel-ot{border-color:var(--ot);background:#2e1065;color:var(--ot);}
+.time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.three-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--bg2);border-radius:24px 24px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom));width:100%;max-width:480px;box-shadow:0 -20px 60px rgba(0,0,0,.5);border:1px solid var(--border);border-bottom:none;animation:slideup .25s ease;max-height:92vh;overflow-y:auto;}
+.modal-handle{width:36px;height:4px;border-radius:2px;background:var(--border2);margin:0 auto 20px;}
+.modal-title{font-size:18px;font-weight:800;color:var(--text);margin-bottom:20px;}
+.modal-footer{display:flex;gap:10px;margin-top:20px;}
+.modal-footer .btn{flex:1;}
+
+/* PROGRESS */
+.progress-wrap{background:var(--surface2);border-radius:99px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:99px;transition:width .8s;}
+.progress-h8{height:8px;}.progress-h12{height:12px;}
+.progress-shimmer{background-image:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);background-size:200% 100%;animation:shimmer 2s infinite;}
+
+/* TOAST */
+.toast-wrap{position:fixed;top:calc(70px + env(safe-area-inset-top));right:14px;z-index:9999;display:flex;flex-direction:column;gap:6px;}
+.toast{padding:10px 14px;border-radius:12px;font-size:12px;cursor:pointer;max-width:240px;color:#fff;animation:fadein .2s ease;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.4);}
+
+/* MISC */
+.empty{text-align:center;padding:48px 20px;color:var(--text3);}
+.empty-icon{font-size:40px;margin-bottom:10px;}
+.empty-text{font-size:14px;font-weight:500;line-height:1.6;}
+.pie-wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.pie-legend{display:flex;flex-direction:column;gap:8px;flex:1;}
+.pie-legend-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);}
+.pie-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+.subj-row{margin-bottom:12px;}
+.subj-row-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.milestone-pct{font-size:36px;font-weight:900;background:linear-gradient(90deg,var(--accent2),#e879f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-2px;line-height:1;}
+.milestone-row{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;}
+.best-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.best-val{font-size:22px;font-weight:800;letter-spacing:-1px;margin-bottom:2px;}
+.best-sub{font-size:10px;color:var(--text3);}
+.history-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;}
+.tags-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.backup-bar{background:var(--surface2);border:1px solid var(--border2);border-radius:14px;padding:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+.backup-text{font-size:12px;color:var(--text2);line-height:1.5;}
+.backup-btns{display:flex;gap:8px;flex-shrink:0;}
+.backup-btn{padding:6px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface);color:var(--text2);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;}
+.backup-btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;color:#fff;}
+
+/* EXAM STATS PAGE */
+.exam-hero{border-radius:20px;padding:18px;background:linear-gradient(135deg,#1a0830,#2a1500);border:1px solid #f59e0b33;}
+.exam-hero-num{font-size:40px;font-weight:900;background:linear-gradient(90deg,#f59e0b,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;letter-spacing:-2px;}
+.score-trend-label{font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;font-weight:600;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="logo-wrap">
+        <div class="logo-icon">📚</div>
+        <div>
+          <div class="logo-text">JEE Tracker</div>
+          <div class="logo-by">by Mosfique</div>
+        </div>
+      </div>
+      <div class="live-badge" id="liveBadge" style="display:none">
+        <div class="live-dot"></div>
+        <span class="live-text">LIVE</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="tab-panel active" id="tab-today"></div>
+  <div class="tab-panel" id="tab-history"></div>
+  <div class="tab-panel" id="tab-exams"></div>
+  <div class="tab-panel" id="tab-alltime"></div>
+</div>
+
+<button class="fab" id="fabBtn" onclick="openModal(null)">＋</button>
+<button class="fab fab-exam" id="examFabBtn" onclick="openExamModal(null)" style="display:none">📝</button>
+
+<div class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="nav-btn active" id="nav-today" onclick="switchTab('today',this)"><span class="nav-icon">⚡</span>Today</button>
+    <button class="nav-btn" id="nav-history" onclick="switchTab('history',this)"><span class="nav-icon">📅</span>History</button>
+    <button class="nav-btn" id="nav-exams" onclick="switchTab('exams',this)"><span class="nav-icon">📝</span>Exams</button>
+    <button class="nav-btn" id="nav-alltime" onclick="switchTab('alltime',this)"><span class="nav-icon">🏆</span>All Time</button>
+  </div>
+</div>
+
+<!-- STUDY TASK MODAL -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalTitle">New Study Task</div>
+    <div class="field"><label class="label">Task Name</label><input class="input" id="taskName" placeholder="e.g. Electrostatics – Gauss Law" autocomplete="off"/></div>
+    <div class="field"><label class="label">Subject</label><div class="subj-btns" id="subjBtns"></div></div>
+    <div class="time-row">
+      <div class="field"><label class="label">Start</label><input type="time" class="input" id="startTime"/></div>
+      <div class="field"><label class="label">End</label><input type="time" class="input" id="endTime"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="saveBtn" onclick="saveTask()">Add Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXAM SCHEDULE MODAL -->
+<div class="modal-overlay" id="examModal" onclick="if(event.target===this)closeExamModal()">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="examModalTitle">Schedule Exam</div>
+    <div class="field"><label class="label">Exam Name</label><input class="input" id="examName" placeholder="e.g. JEE Main Mock #3" autocomplete="off"/></div>
+    <div class="field">
+      <label class="label">Exam Type</label>
+      <div class="subj-btns" id="examTypeBtns"></div>
+    </div>
+    <div class="time-row">
+      <div class="field"><label class="label">Date</label><input type="date" class="input" id="examDate"/></div>
+      <div class="field"><label class="label">Total Marks</label><input type="number" class="input" id="examTotal" placeholder="300"/></div>
+    </div>
+    <div class="field"><label class="label">Notes / Topics</label><input class="input" id="examNotes" placeholder="e.g. Full syllabus mock"/></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeExamModal()">Cancel</button>
+      <button class="btn btn-exam" id="examSaveBtn" onclick="saveExam()">Schedule</button>
+    </div>
+  </div>
+</div>
+
+<!-- ENTER MARKS MODAL -->
+<div class="modal-overlay" id="marksModal" onclick="if(event.target===this)closeMarksModal()">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Enter Marks</div>
+    <div id="marksExamName" style="font-size:13px;color:var(--text2);margin:-12px 0 18px;font-weight:600;"></div>
+    <div class="three-row">
+      <div class="field"><label class="label" style="color:var(--ph)">Physics</label><input type="number" class="input" id="marksPh" placeholder="0"/></div>
+      <div class="field"><label class="label" style="color:var(--ch)">Chemistry</label><input type="number" class="input" id="marksCh" placeholder="0"/></div>
+      <div class="field"><label class="label" style="color:var(--ma)">Maths</label><input type="number" class="input" id="marksMa" placeholder="0"/></div>
+    </div>
+    <div class="time-row">
+      <div class="field"><label class="label">Rank</label><input type="text" class="input" id="marksRank" placeholder="e.g. 1250"/></div>
+      <div class="field"><label class="label">Percentile</label><input type="text" class="input" id="marksPercentile" placeholder="e.g. 95.4"/></div>
+    </div>
+    <div class="field"><label class="label">Remarks</label><input class="input" id="marksRemarks" placeholder="What went well / what to improve"/></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeMarksModal()">Cancel</button>
+      <button class="btn btn-exam" onclick="saveMarks()">Save Marks</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+const SUBJECTS=["Physics","Chemistry","Maths","Other"];
+const SC={Physics:"#818cf8",Chemistry:"#34d399",Maths:"#fb923c",Other:"#a78bfa"};
+const SB={Physics:"#1e1b4b",Chemistry:"#064e3b",Maths:"#431407",Other:"#2e1065"};
+const SK={Physics:"ph",Chemistry:"ch",Maths:"ma",Other:"ot"};
+const EXAM_TYPES=["Mock Test","JEE Main","JEE Advanced","Other"];
+const ETC={"Mock Test":"#f59e0b","JEE Main":"#ec4899","JEE Advanced":"#06b6d4","Other":"#a78bfa"};
+const ETK={"Mock Test":"mock","JEE Main":"main","JEE Advanced":"adv","Other":"oth"};
+const JEE_TARGET=2000, STORE_KEY="jee_v6", BACKUP_KEY="jee_v6_bk";
+
+let tasks={}, exams=[], activeId=null, timerInterval=null;
+let editId=null, selSubj="Physics", curTab="today";
+let editExamId=null, selExamType="Mock Test", marksTargetId=null;
+
+// ── DATA ────────────────────────────────────────────────────────────
+function todayKey(){return new Date().toISOString().slice(0,10);}
+function fmtT(s){return String(Math.floor(s/3600)).padStart(2,"0")+":"+String(Math.floor((s%3600)/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
+
+function save(){
+  try{
+    const d=JSON.stringify({tasks,exams,savedAt:Date.now()});
+    localStorage.setItem(STORE_KEY,d);
+    if(Math.random()<0.15) localStorage.setItem(BACKUP_KEY,d);
+  }catch(e){}
+}
+function load(){
+  try{
+    const r=localStorage.getItem(STORE_KEY);
+    if(r){const d=JSON.parse(r);tasks=d.tasks||{};exams=d.exams||[];}
+    else{const b=localStorage.getItem(BACKUP_KEY);if(b){const d=JSON.parse(b);tasks=d.tasks||{};exams=d.exams||[];}}
+  }catch(e){tasks={};exams=[];}
+}
+function exportData(){
+  const d=JSON.stringify({tasks,exams,exportedAt:new Date().toISOString()},null,2);
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([d],{type:"application/json"}));
+  a.download="jee-backup-"+todayKey()+".json"; a.click();
+  showToast("Backup saved!","success");
+}
+function importData(e){
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(d.tasks){Object.keys(d.tasks).forEach(k=>{if(!tasks[k])tasks[k]=[];d.tasks[k].forEach(t=>{if(!tasks[k].find(x=>x.id===t.id))tasks[k].push(t);});});}
+      if(d.exams){d.exams.forEach(e=>{if(!exams.find(x=>x.id===e.id))exams.push(e);});}
+      save();renderTab(curTab);showToast("Data restored!","success");
+    }catch(err){showToast("Invalid file","warn");}
+  };
+  r.readAsText(f);
+}
+
+// ── TOAST ────────────────────────────────────────────────────────────
+function showToast(msg,type="info"){
+  const w=document.getElementById("toastWrap"),d=document.createElement("div");
+  d.className="toast";
+  d.style.background=type==="success"?"#059669":type==="warn"?"#d97706":type==="err"?"#dc2626":"#6d28d9";
+  d.textContent=msg; d.onclick=()=>d.remove();
+  w.appendChild(d); setTimeout(()=>d.remove(),3000);
+}
+
+// ── TABS ────────────────────────────────────────────────────────────
+function switchTab(name,btn){
+  curTab=name;
+  document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
+  document.getElementById("tab-"+name).classList.add("active");
+  (btn||document.getElementById("nav-"+name)).classList.add("active");
+  document.getElementById("fabBtn").style.display=name==="today"?"flex":"none";
+  document.getElementById("examFabBtn").style.display=name==="exams"?"flex":"none";
+  renderTab(name);
+}
+function renderTab(n){
+  if(n==="today") renderToday();
+  else if(n==="history") renderHistory();
+  else if(n==="exams") renderExams();
+  else if(n==="alltime") renderAllTime();
+}
+
+// ── HELPERS ────────────────────────────────────────────────────────
+function subjChip(s,small){
+  const fs=small?9:11,pd=small?"2px 8px":"3px 10px";
+  return `<span class="subj-chip" style="background:${SB[s]};color:${SC[s]};font-size:${fs}px;padding:${pd};border-radius:6px;font-weight:700">${s}</span>`;
+}
+function pbar(val,max,color,shimmer,h=8){
+  const pct=Math.min(100,(val/(max||1))*100);
+  const cls=shimmer?" progress-shimmer":"";
+  const bg=shimmer?`background:${color};background-image:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);background-size:200% 100%;`:`background:${color};`;
+  return `<div class="progress-wrap progress-h${h}"><div class="progress-fill${cls}" style="width:${pct}%;${bg}"></div></div>`;
+}
+function statCard(label,val,sub,color){
+  return `<div class="stat-card"><div class="stat-label">${label}</div><div class="stat-val" style="color:${color||"var(--text)"}">${val}</div>${sub?`<div class="stat-sub">${sub}</div>`:""}</div>`;
+}
+function durStr(s,e){
+  if(!s||!e) return "";
+  const sp=s.split(":"),ep=e.split(":");
+  const diff=(+ep[0]*60+ +ep[1])-(+sp[0]*60+ +sp[1]);
+  return diff>0?`${Math.floor(diff/60)}h ${diff%60}m`:"";
+}
+function scoreColor(pct){return pct>=75?"#10b981":pct>=50?"#f59e0b":pct>=35?"#fb923c":"#ef4444";}
+
+// ── TODAY TAB ───────────────────────────────────────────────────────
+function renderToday(){
+  const p=document.getElementById("tab-today");
+  const date=todayKey(),dt=tasks[date]||[];
+  const totalSec=dt.reduce((a,t)=>a+(t.elapsed||0),0);
+  const done=dt.filter(t=>t.completed).length;
+  const pending=dt.filter(t=>!t.completed),comp=dt.filter(t=>t.completed);
+  const dateStr=new Date().toLocaleDateString("en-IN",{weekday:"long",month:"long",day:"numeric"});
+
+  // Today's exams
+  const todayExams=exams.filter(e=>e.date===date);
+
+  let h=`<div class="hero-card">
+    <div style="font-size:13px;color:var(--text2);margin-bottom:4px">${dateStr}</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end">
+      <div><div class="hero-hours">${(totalSec/3600).toFixed(1)}h</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:4px">${done}/${dt.length} tasks done</div></div>
+      <div style="text-align:right">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Daily Goal</div>
+        <div style="font-size:22px;font-weight:800;color:var(--accent3)">${Math.min(100,Math.round((totalSec/3600/8)*100))}%</div>
+      </div>
+    </div>
+    ${dt.length>0?`<div style="margin-top:14px">${pbar(totalSec,8*3600,"linear-gradient(90deg,#7c3aed,#a855f7,#ec4899)",true,8)}</div>`:""}
+  </div>`;
+
+  // Show today's exams at top
+  if(todayExams.length>0){
+    h+=`<div><div class="group-label">📝 Today's Exams · ${todayExams.length}</div>`;
+    todayExams.forEach(e=>{ h+=examTaskCardHTML(e,true); });
+    h+=`</div>`;
+  }
+
+  if(!dt.length&&!todayExams.length){
+    h+=`<div class="empty"><div class="empty-icon">🚀</div><div class="empty-text">No tasks yet.<br>Tap + to start studying!</div></div>`;
+    return void(p.innerHTML=h);
+  }
+
+  if(pending.length){
+    h+=`<div><div class="group-label">Pending · ${pending.length}</div>`;
+    pending.forEach(t=>{h+=taskCardHTML(t,activeId===t.id);});
+    h+=`</div>`;
+  }
+  if(comp.length){
+    h+=`<div><div class="group-label">Completed · ${comp.length}</div>`;
+    comp.forEach(t=>{h+=taskCardHTML(t,false);});
+    h+=`</div>`;
+  }
+  p.innerHTML=h;
+}
+
+function taskCardHTML(t,running){
+  const ds=durStr(t.startTime,t.endTime);
+  const metaRow=(t.startTime||t.endTime)?`<div class="task-meta">${t.startTime||""}${t.startTime&&t.endTime?" → ":""}${t.endTime||""}${ds?` <span class="dur-chip">${ds}</span>`:""}</div>`:"";
+  const timerRow=!t.completed
+    ?`<div class="task-bottom">
+        <span class="timer-num${running?" live":""}" id="tmr-${t.id}">${fmtT(t.elapsed||0)}</span>
+        <button class="start-btn${running?" running":""}" onclick="doTimer('${t.id}')">${running?"⏸ Pause":"▶ Start"}</button>
+        ${running?`<span class="live-pill">LIVE</span>`:""}
+      </div>`
+    :((t.elapsed||0)>0?`<span class="elapsed-done">✓ ${fmtT(t.elapsed)} studied</span>`:"");
+  const cc=t.completed?(SC[t.subject]||"#c8b89a"):"var(--border2)";
+  const cb=t.completed?(SC[t.subject]||"transparent"):"transparent";
+  return `<div class="task-card ${SK[t.subject]||"ot"}${running?" running":""}${t.completed?" done-card":""}" id="tc-${t.id}">
+    <div class="task-row">
+      <button class="check-btn${t.completed?" done":""}" style="border-color:${cc};background:${cb}" onclick="doDone('${t.id}')">${t.completed?"✓":""}</button>
+      <div class="task-body">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:2px">
+          <span class="task-name${t.completed?" struck":""}">${t.name}</span>${subjChip(t.subject,true)}
+        </div>
+        ${metaRow}${timerRow}
+      </div>
+      <div class="task-actions">
+        <button class="icon-btn" onclick="openModal('${t.id}')">✏️</button>
+        <button class="icon-btn" onclick="doDelete('${t.id}')">🗑</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function examTaskCardHTML(e, compact){
+  const hasMarks=e.marksEntered;
+  const pct=hasMarks?Math.round(((e.ph+e.ch+e.ma)/(e.total||300))*100):null;
+  const col=hasMarks?scoreColor(pct):"#f59e0b";
+  const tc=ETC[e.type]||"#f59e0b";
+  const ds=e.date?new Date(e.date+"T12:00:00").toLocaleDateString("en-IN",{weekday:"short",month:"short",day:"numeric"}):"";
+  return `<div class="exam-task-card ${hasMarks?"exam-task-done":"exam-task-pending"}">
+    <div class="exam-badge">📝 ${e.type}</div>
+    <div class="exam-name-row">
+      <div style="flex:1">
+        <div class="exam-title">${e.name}</div>
+        <div class="exam-date-chip">${ds} · ${e.total||300} marks</div>
+        ${e.notes?`<div style="font-size:10px;color:var(--text3);margin-top:3px;font-style:italic">${e.notes}</div>`:""}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;margin-left:10px">
+        <button class="icon-btn" onclick="openExamModal('${e.id}')">✏️</button>
+        <button class="icon-btn" onclick="deleteExam('${e.id}')">🗑</button>
+      </div>
+    </div>
+    ${hasMarks?`
+      <div class="exam-score-display">
+        <div class="exam-score-box"><div class="esb-label">Physics</div><div class="esb-val" style="color:var(--ph)">${e.ph}</div></div>
+        <div class="exam-score-box"><div class="esb-label">Chemistry</div><div class="esb-val" style="color:var(--ch)">${e.ch}</div></div>
+        <div class="exam-score-box"><div class="esb-label">Maths</div><div class="esb-val" style="color:var(--ma)">${e.ma}</div></div>
+      </div>
+      <div class="exam-total-row">
+        <div><div class="exam-total-score" style="color:${col}">${e.ph+e.ch+e.ma}/${e.total||300}</div><div class="exam-pct">${pct}% · ${pct>=75?"Excellent 🔥":pct>=50?"Good 👍":pct>=35?"Needs Work ⚡":"Keep Going 💪"}</div></div>
+        <button class="enter-marks-btn" onclick="openMarksModal('${e.id}')">Edit Marks</button>
+      </div>
+      ${e.rank?`<div style="font-size:11px;color:var(--accent3);font-weight:600;margin-top:4px">🏅 Rank: ${e.rank}${e.percentile?" · "+e.percentile+"%ile":""}</div>`:""}
+      ${e.remarks?`<div style="font-size:11px;color:var(--text3);margin-top:4px;font-style:italic">💬 ${e.remarks}</div>`:""}
+      <div style="margin-top:10px">${pbar(e.ph+e.ch+e.ma,e.total||300,col,false,8)}</div>
+    `:`
+      <div style="margin-top:12px">
+        <button class="enter-marks-btn" style="width:100%;padding:10px;border-radius:12px;font-size:13px" onclick="openMarksModal('${e.id}')">✏️ Enter Marks After Exam</button>
+      </div>
+    `}
+  </div>`;
+}
+
+// ── TIMER ───────────────────────────────────────────────────────────
+function doTimer(id){
+  const date=todayKey();
+  if(activeId===id){
+    clearInterval(timerInterval);timerInterval=null;activeId=null;
+    document.getElementById("liveBadge").style.display="none";
+    renderToday();return;
+  }
+  if(activeId) clearInterval(timerInterval);
+  activeId=id;
+  document.getElementById("liveBadge").style.display="flex";
+  timerInterval=setInterval(()=>{
+    const dt=tasks[date]||[],idx=dt.findIndex(t=>t.id===id);
+    if(idx===-1){clearInterval(timerInterval);activeId=null;return;}
+    dt[idx].elapsed=(dt[idx].elapsed||0)+1;
+    tasks[date]=dt; save();
+    const el=document.getElementById("tmr-"+id);
+    if(el) el.textContent=fmtT(dt[idx].elapsed);
+  },1000);
+  renderToday();
+}
+function doDone(id){
+  const date=todayKey(),dt=tasks[date]||[],idx=dt.findIndex(t=>t.id===id);
+  if(idx===-1) return;
+  if(activeId===id){clearInterval(timerInterval);timerInterval=null;activeId=null;document.getElementById("liveBadge").style.display="none";}
+  dt[idx].completed=!dt[idx].completed;
+  tasks[date]=dt; save(); showToast(dt[idx].completed?"Done! 🎉":"Reopened 🔄","success"); renderToday();
+}
+function doDelete(id){
+  const date=todayKey(),dt=tasks[date]||[];
+  if(activeId===id){clearInterval(timerInterval);timerInterval=null;activeId=null;document.getElementById("liveBadge").style.display="none";}
+  tasks[date]=dt.filter(t=>t.id!==id); save(); showToast("Deleted","warn"); renderToday();
+}
+
+// ── STUDY TASK MODAL ────────────────────────────────────────────────
+function buildSubjBtns(){
+  const w=document.getElementById("subjBtns"); w.innerHTML="";
+  SUBJECTS.forEach(s=>{
+    const b=document.createElement("button"); b.className="subj-pick"; b.textContent=s;
+    if(s===selSubj) b.classList.add("sel-"+SK[s]);
+    b.onclick=()=>{selSubj=s;buildSubjBtns();};
+    w.appendChild(b);
+  });
+}
+function openModal(id){
+  editId=id;
+  if(id){
+    const dt=tasks[todayKey()]||[],t=dt.find(x=>x.id===id); if(!t) return;
+    document.getElementById("modalTitle").textContent="Edit Task";
+    document.getElementById("saveBtn").textContent="Save";
+    document.getElementById("taskName").value=t.name;
+    document.getElementById("startTime").value=t.startTime||"";
+    document.getElementById("endTime").value=t.endTime||"";
+    selSubj=t.subject||"Physics";
+  } else {
+    document.getElementById("modalTitle").textContent="New Study Task";
+    document.getElementById("saveBtn").textContent="Add Task";
+    document.getElementById("taskName").value="";
+    document.getElementById("startTime").value="";
+    document.getElementById("endTime").value="";
+    selSubj="Physics";
+  }
+  buildSubjBtns();
+  document.getElementById("modal").classList.add("open");
+  setTimeout(()=>document.getElementById("taskName").focus(),150);
+}
+function closeModal(){document.getElementById("modal").classList.remove("open");}
+function saveTask(){
+  const name=document.getElementById("taskName").value.trim();
+  if(!name){document.getElementById("taskName").focus();return;}
+  const date=todayKey();
+  if(!tasks[date]) tasks[date]=[];
+  const dt=tasks[date];
+  if(editId){
+    const idx=dt.findIndex(t=>t.id===editId);
+    if(idx!==-1) dt[idx]=Object.assign({},dt[idx],{name,subject:selSubj,startTime:document.getElementById("startTime").value,endTime:document.getElementById("endTime").value});
+    showToast("Updated!","success");
+  } else {
+    dt.push({id:uid(),name,subject:selSubj,startTime:document.getElementById("startTime").value,endTime:document.getElementById("endTime").value,elapsed:0,completed:false});
+    showToast("Task added! 📌","success");
+  }
+  tasks[date]=dt; save(); closeModal(); renderToday();
+}
+
+// ── EXAM MODAL ──────────────────────────────────────────────────────
+function buildExamTypeBtns(){
+  const w=document.getElementById("examTypeBtns"); w.innerHTML="";
+  EXAM_TYPES.forEach(t=>{
+    const b=document.createElement("button"); b.className="subj-pick"; b.textContent=t;
+    const col=ETC[t]||"#a78bfa";
+    if(t===selExamType){b.style.borderColor=col;b.style.background=col+"22";b.style.color=col;b.style.fontWeight="700";}
+    b.onclick=()=>{selExamType=t;buildExamTypeBtns();};
+    w.appendChild(b);
+  });
+}
+function openExamModal(id){
+  editExamId=id;
+  const today=todayKey();
+  if(id){
+    const e=exams.find(x=>x.id===id); if(!e) return;
+    document.getElementById("examModalTitle").textContent="Edit Exam";
+    document.getElementById("examSaveBtn").textContent="Save";
+    document.getElementById("examName").value=e.name;
+    document.getElementById("examDate").value=e.date||today;
+    document.getElementById("examTotal").value=e.total||300;
+    document.getElementById("examNotes").value=e.notes||"";
+    selExamType=e.type||"Mock Test";
+  } else {
+    document.getElementById("examModalTitle").textContent="Schedule Exam";
+    document.getElementById("examSaveBtn").textContent="Schedule";
+    document.getElementById("examName").value="";
+    document.getElementById("examDate").value=today;
+    document.getElementById("examTotal").value="300";
+    document.getElementById("examNotes").value="";
+    selExamType="Mock Test";
+  }
+  buildExamTypeBtns();
+  document.getElementById("examModal").classList.add("open");
+  setTimeout(()=>document.getElementById("examName").focus(),150);
+}
+function closeExamModal(){document.getElementById("examModal").classList.remove("open");}
+function saveExam(){
+  const name=document.getElementById("examName").value.trim();
+  if(!name){document.getElementById("examName").focus();return;}
+  const exam={
+    id:editExamId||uid(), name,
+    type:selExamType,
+    date:document.getElementById("examDate").value,
+    total:+document.getElementById("examTotal").value||300,
+    notes:document.getElementById("examNotes").value.trim(),
+    marksEntered:editExamId?(exams.find(x=>x.id===editExamId)||{}).marksEntered||false:false,
+    ph:(exams.find(x=>x.id===editExamId)||{}).ph||0,
+    ch:(exams.find(x=>x.id===editExamId)||{}).ch||0,
+    ma:(exams.find(x=>x.id===editExamId)||{}).ma||0,
+    rank:(exams.find(x=>x.id===editExamId)||{}).rank||"",
+    percentile:(exams.find(x=>x.id===editExamId)||{}).percentile||"",
+    remarks:(exams.find(x=>x.id===editExamId)||{}).remarks||"",
+  };
+  if(editExamId){
+    const idx=exams.findIndex(x=>x.id===editExamId);
+    if(idx!==-1) exams[idx]=exam;
+    showToast("Updated!","success");
+  } else {
+    exams.push(exam);
+    showToast("Exam scheduled! 📅","success");
+  }
+  save(); closeExamModal(); renderTab(curTab);
+}
+function deleteExam(id){
+  exams=exams.filter(x=>x.id!==id);
+  save(); showToast("Deleted","warn"); renderTab(curTab);
+}
+
+// ── MARKS MODAL ─────────────────────────────────────────────────────
+function openMarksModal(id){
+  marksTargetId=id;
+  const e=exams.find(x=>x.id===id); if(!e) return;
+  document.getElementById("marksExamName").textContent=e.name+" · "+e.date;
+  document.getElementById("marksPh").value=e.ph||"";
+  document.getElementById("marksCh").value=e.ch||"";
+  document.getElementById("marksMa").value=e.ma||"";
+  document.getElementById("marksRank").value=e.rank||"";
+  document.getElementById("marksPercentile").value=e.percentile||"";
+  document.getElementById("marksRemarks").value=e.remarks||"";
+  document.getElementById("marksModal").classList.add("open");
+  setTimeout(()=>document.getElementById("marksPh").focus(),150);
+}
+function closeMarksModal(){document.getElementById("marksModal").classList.remove("open");}
+function saveMarks(){
+  const idx=exams.findIndex(x=>x.id===marksTargetId); if(idx===-1) return;
+  const ph=+document.getElementById("marksPh").value||0;
+  const ch=+document.getElementById("marksCh").value||0;
+  const ma=+document.getElementById("marksMa").value||0;
+  exams[idx]=Object.assign({},exams[idx],{
+    ph,ch,ma,
+    rank:document.getElementById("marksRank").value.trim(),
+    percentile:document.getElementById("marksPercentile").value.trim(),
+    remarks:document.getElementById("marksRemarks").value.trim(),
+    marksEntered:true
+  });
+  save(); closeMarksModal();
+  showToast("Marks saved! 🎯","success");
+  renderTab(curTab);
+}
+
+// ── EXAMS TAB ───────────────────────────────────────────────────────
+function renderExams(){
+  const p=document.getElementById("tab-exams");
+  const sorted=[...exams].sort((a,b)=>b.date.localeCompare(a.date));
+  const given=exams.filter(e=>e.marksEntered);
+  const upcoming=sorted.filter(e=>!e.marksEntered);
+  const completed=sorted.filter(e=>e.marksEntered);
+  const avgPct=given.length?Math.round(given.reduce((a,e)=>a+((e.ph+e.ch+e.ma)/(e.total||300)*100),0)/given.length):0;
+  const best=given.length?[...given].sort((a,b)=>((b.ph+b.ch+b.ma)/(b.total||300))-((a.ph+a.ch+a.ma)/(a.total||300)))[0]:null;
+
+  let h=`<div class="section-title">Exam Tracker</div>`;
+
+  // Hero
+  h+=`<div class="exam-hero">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end">
+      <div>
+        <div style="font-size:10px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Exams Given</div>
+        <div class="exam-hero-num">${given.length}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:4px">of ${exams.length} scheduled · Avg ${avgPct}%</div>
+      </div>
+      ${best?`<div style="text-align:right">
+        <div style="font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Best</div>
+        <div style="font-size:20px;font-weight:900;color:#10b981">${best.ph+best.ch+best.ma}/${best.total||300}</div>
+        <div style="font-size:9px;color:var(--text3)">${best.name}</div>
+      </div>`:""}
+    </div>
+  </div>`;
+
+  // Stats grid
+  if(given.length>0){
+    const avgPh=Math.round(given.reduce((a,e)=>a+e.ph,0)/given.length);
+    const avgCh=Math.round(given.reduce((a,e)=>a+e.ch,0)/given.length);
+    const avgMa=Math.round(given.reduce((a,e)=>a+e.ma,0)/given.length);
+    h+=`<div class="card">
+      <div class="stat-label" style="margin-bottom:12px">Average Subject Scores</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div style="background:var(--surface2);border-radius:12px;padding:12px;text-align:center">
+          <div style="font-size:8px;color:var(--ph);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Physics</div>
+          <div style="font-size:22px;font-weight:800;color:var(--ph)">${avgPh}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:12px;padding:12px;text-align:center">
+          <div style="font-size:8px;color:var(--ch);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Chemistry</div>
+          <div style="font-size:22px;font-weight:800;color:var(--ch)">${avgCh}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:12px;padding:12px;text-align:center">
+          <div style="font-size:8px;color:var(--ma);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Maths</div>
+          <div style="font-size:22px;font-weight:800;color:var(--ma)">${avgMa}</div>
+        </div>
+      </div>
+    </div>`;
+
+    // Score trend
+    const trendData=[...given].sort((a,b)=>a.date.localeCompare(b.date)).map(e=>({day:e.date.slice(5),hours:+(((e.ph+e.ch+e.ma)/(e.total||300))*100).toFixed(1)}));
+    if(trendData.length>1)
+      h+=`<div class="card"><div class="stat-label" style="margin-bottom:10px">Score Trend (%)</div>${simpleBars(trendData,150,"#f59e0b")}</div>`;
+  }
+
+  // Upcoming exams
+  if(upcoming.length>0){
+    h+=`<div><div class="group-label">📅 Upcoming / Pending Marks · ${upcoming.length}</div>`;
+    upcoming.forEach(e=>{h+=examTaskCardHTML(e,false);});
+    h+=`</div>`;
+  }
+
+  // Completed exams
+  if(completed.length>0){
+    h+=`<div><div class="group-label">✅ Completed · ${completed.length}</div>`;
+    completed.forEach(e=>{h+=examTaskCardHTML(e,false);});
+    h+=`</div>`;
+  }
+
+  if(!exams.length){
+    h+=`<div class="empty"><div class="empty-icon">📝</div><div class="empty-text">No exams scheduled yet.<br>Tap 📝 to add an exam.<br>After giving it, enter your marks!</div></div>`;
+  }
+
+  p.innerHTML=h;
+}
+
+// ── HISTORY TAB ─────────────────────────────────────────────────────
+function renderHistory(){
+  const p=document.getElementById("tab-history");
+  const days=Object.keys(tasks).sort((a,b)=>b.localeCompare(a))
+    .map(k=>({key:k,ts:tasks[k],done:tasks[k].filter(t=>t.completed).length,hours:tasks[k].reduce((a,t)=>a+(t.elapsed||0),0)/3600}))
+    .filter(d=>d.ts.length>0);
+  const last7=Object.keys(tasks).sort((a,b)=>b.localeCompare(a)).slice(0,7).reverse();
+  const barData=last7.map(k=>{
+    const ts=tasks[k]||[],obj={day:k.slice(5)};
+    SUBJECTS.forEach(s=>{obj[s]=ts.filter(t=>t.subject===s).reduce((a,t)=>a+(t.elapsed||0),0)/3600;});
+    return obj;
+  });
+
+  let h=`<div class="section-title">Study History</div>
+    <div class="backup-bar">
+      <div class="backup-text">🛡️ <strong>Keep data safe</strong><br>Export backup regularly.</div>
+      <div class="backup-btns">
+        <button class="backup-btn primary" onclick="exportData()">Export</button>
+        <button class="backup-btn" onclick="document.getElementById('importFile').click()">Restore</button>
+      </div>
+    </div>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)"/>`;
+
+  if(barData.length>0)
+    h+=`<div class="card"><div class="stat-label" style="margin-bottom:12px">Last 7 Days</div>${stackedBarSVG(barData,180)}</div>`;
+
+  if(!days.length){h+=`<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No study history yet</div></div>`;return void(p.innerHTML=h);}
+  days.forEach(d=>{
+    const subjs=SUBJECTS.filter(s=>d.ts.some(t=>t.subject===s));
+    const ds=new Date(d.key+"T12:00:00").toLocaleDateString("en-IN",{weekday:"short",month:"short",day:"numeric"});
+    const examsOnDay=exams.filter(e=>e.date===d.key&&e.marksEntered);
+    h+=`<div class="card">
+      <div class="history-top">
+        <div><div style="font-weight:700;color:var(--text);font-size:14px">${ds}</div><div style="font-size:10px;color:var(--text3)">${d.done}/${d.ts.length} done</div></div>
+        <div style="font-size:20px;font-weight:800;background:linear-gradient(90deg,var(--accent3),#e879f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${d.hours.toFixed(1)}h</div>
+      </div>
+      <div class="tags-row">${subjs.map(s=>subjChip(s,true)).join("")}${examsOnDay.map(e=>`<span style="background:#f59e0b22;color:#f59e0b;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px">📝 ${e.name.slice(0,12)}</span>`).join("")}</div>
+    </div>`;
+  });
+  p.innerHTML=h;
+}
+
+// ── ALL TIME TAB ────────────────────────────────────────────────────
+function renderAllTime(){
+  const p=document.getElementById("tab-alltime");
+  const all=Object.values(tasks).reduce((a,arr)=>a.concat(arr),[]);
+  const totalSec=all.reduce((a,t)=>a+(t.elapsed||0),0),totalH=totalSec/3600;
+  const comp=all.filter(t=>t.completed).length;
+  const byDay=Object.entries(tasks).map(([d,arr])=>({d,h:arr.reduce((a,t)=>a+(t.elapsed||0),0)/3600})).filter(x=>x.h>0).sort((a,b)=>b.h-a.h);
+  const sdays=byDay.length,avg=sdays?totalH/sdays:0,best=byDay[0];
+  const sh=SUBJECTS.map(s=>({name:s,value:all.filter(t=>t.subject===s).reduce((a,t)=>a+(t.elapsed||0),0)/3600})).sort((a,b)=>b.value-a.value);
+  const most=sh[0]&&sh[0].value>0?sh[0]:null;
+  const pct=Math.min(100,(totalSec/(JEE_TARGET*3600))*100);
+  const givenExams=exams.filter(e=>e.marksEntered);
+
+  let h=`<div class="section-title">All-Time Stats</div>
+    <div class="stat-grid">
+      ${statCard("Total Hours",totalH.toFixed(1)+"h","","#a855f7")}
+      ${statCard("Completed",comp,"tasks")}
+      ${statCard("Study Days",sdays,"")}
+      ${statCard("Exams Given",givenExams.length,"of "+exams.length+" scheduled","#f59e0b")}
+    </div>
+    <div class="card" style="background:linear-gradient(135deg,#1e1838,#2d1f5e);border-color:var(--border2)">
+      <div class="stat-label" style="margin-bottom:12px">🎯 JEE 2000h Milestone</div>
+      <div class="milestone-row">
+        <div><div class="milestone-pct">${pct.toFixed(2)}%</div><div style="font-size:12px;color:var(--text2)">${totalH.toFixed(1)}h of 2000h</div></div>
+        <div style="font-size:11px;color:var(--text3);text-align:right">${Math.max(0,JEE_TARGET-Math.floor(totalH))}h to go</div>
+      </div>
+      ${pbar(totalSec,JEE_TARGET*3600,"linear-gradient(90deg,#7c3aed,#a855f7,#ec4899)",true,12)}
+    </div>
+    <div class="best-grid">
+      ${best?`<div class="card"><div class="stat-label" style="margin-bottom:6px">🏆 Best Day</div><div class="best-val" style="color:#f59e0b">${best.h.toFixed(1)}h</div><div class="best-sub">${new Date(best.d+"T12:00:00").toLocaleDateString("en-IN",{weekday:"short",month:"short",day:"numeric"})}</div></div>`:""}
+      ${most?`<div class="card"><div class="stat-label" style="margin-bottom:6px">📚 Top Subject</div><div class="best-val" style="color:${SC[most.name]}">${most.name}</div><div class="best-sub">${most.value.toFixed(1)}h total</div></div>`:""}
+    </div>
+    <div class="card"><div class="stat-label" style="margin-bottom:14px">Subject Totals</div>
+      ${sh.map(s=>`<div class="subj-row"><div class="subj-row-top">${subjChip(s.name,true)}<span style="font-size:12px;color:${SC[s.name]};font-weight:700">${s.value.toFixed(1)}h</span></div>${pbar(s.value,sh[0]?sh[0].value||1:1,SC[s.name],false,8)}</div>`).join("")}
+    </div>`;
+  p.innerHTML=h;
+}
+
+// ── SVG CHARTS ──────────────────────────────────────────────────────
+function simpleBars(data,h,color){
+  if(!data.length) return "";
+  const W=600,H=h,PL=32,PR=8,PT=8,PB=22,cw=W-PL-PR,ch=H-PT-PB;
+  const maxV=Math.max(...data.map(d=>d.hours),.1);
+  const gap=cw/data.length,bw=Math.max(6,gap*.65);
+  let svg="",grid="";
+  for(let i=0;i<=4;i++){const v=(maxV/4)*i,y=PT+ch-(v/maxV)*ch;grid+=`<line x1="${PL}" y1="${y.toFixed(1)}" x2="${W-PR}" y2="${y.toFixed(1)}" stroke="#2e2850" stroke-width="1"/><text x="${(PL-4).toFixed(1)}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="8" fill="#6b6380">${v.toFixed(1)}</text>`;}
+  data.forEach((d,i)=>{
+    const x=PL+i*gap+(gap-bw)/2,bh=(d.hours/maxV)*ch,y=PT+ch-bh;
+    svg+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(bh,1).toFixed(1)}" rx="3" fill="${color}" opacity=".9"/>`;
+    if(data.length<=15||i%Math.ceil(data.length/8)===0) svg+=`<text x="${(x+bw/2).toFixed(1)}" y="${H-5}" text-anchor="middle" font-size="8" fill="#6b6380">${d.day}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:${H}px;display:block">${grid}${svg}</svg>`;
+}
+function stackedBarSVG(data,h){
+  if(!data.length) return "";
+  const W=600,H=h,PL=32,PR=8,PT=8,PB=22,cw=W-PL-PR,ch=H-PT-PB;
+  const totals=data.map(d=>SUBJECTS.reduce((a,s)=>a+(d[s]||0),0));
+  const maxV=Math.max(...totals,.1);
+  const gap=cw/data.length,bw=Math.max(16,gap*.65);
+  let svg="",grid="";
+  for(let i=0;i<=4;i++){const v=(maxV/4)*i,y=PT+ch-(v/maxV)*ch;grid+=`<line x1="${PL}" y1="${y.toFixed(1)}" x2="${W-PR}" y2="${y.toFixed(1)}" stroke="#2e2850" stroke-width="1"/><text x="${(PL-4).toFixed(1)}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="8" fill="#6b6380">${v.toFixed(1)}</text>`;}
+  data.forEach((d,i)=>{
+    const x=PL+i*gap+(gap-bw)/2;let yOff=PT+ch;
+    SUBJECTS.forEach(s=>{const v=d[s]||0;if(!v)return;const bh=(v/maxV)*ch;yOff-=bh;svg+=`<rect x="${x.toFixed(1)}" y="${yOff.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(bh,1).toFixed(1)}" fill="${SC[s]}" opacity=".9"/>`;});
+    svg+=`<text x="${(x+bw/2).toFixed(1)}" y="${H-5}" text-anchor="middle" font-size="8" fill="#6b6380">${d.day}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:${H}px;display:block">${grid}${svg}</svg>`;
+}
+function donutSVG(pie){
+  const R=70,r=45,cx=80,cy=80,sz=160;
+  const total=pie.reduce((a,s)=>a+s.value,0);if(!total) return "";
+  let angle=-Math.PI/2,paths="";
+  pie.forEach(s=>{
+    const a=(s.value/total)*2*Math.PI;
+    const x1=cx+R*Math.cos(angle),y1=cy+R*Math.sin(angle),x2=cx+R*Math.cos(angle+a),y2=cy+R*Math.sin(angle+a);
+    const xi=cx+r*Math.cos(angle+a),yi=cy+r*Math.sin(angle+a),xj=cx+r*Math.cos(angle),yj=cy+r*Math.sin(angle);
+    const lg=a>Math.PI?1:0;
+    paths+=`<path d="M${x1.toFixed(2)},${y1.toFixed(2)} A${R},${R} 0 ${lg},1 ${x2.toFixed(2)},${y2.toFixed(2)} L${xi.toFixed(2)},${yi.toFixed(2)} A${r},${r} 0 ${lg},0 ${xj.toFixed(2)},${yj.toFixed(2)} Z" fill="${SC[s.name]}" opacity=".9"/>`;
+    angle+=a;
+  });
+  return `<svg viewBox="0 0 ${sz} ${sz}" width="${sz}" height="${sz}" style="flex-shrink:0">${paths}</svg>`;
+}
+function pieLegend(pie){
+  const total=pie.reduce((a,s)=>a+s.value,0);
+  return `<div class="pie-legend">${pie.map(s=>`<div class="pie-legend-item"><div class="pie-dot" style="background:${SC[s.name]}"></div><span>${s.name} — ${Math.round((s.value/total)*100)}% (${s.value.toFixed(1)}h)</span></div>`).join("")}</div>`;
+}
+
+// keyboard shortcuts
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){closeModal();closeExamModal();closeMarksModal();}
+  if(e.key==="Enter"){
+    if(document.getElementById("modal").classList.contains("open")) saveTask();
+    else if(document.getElementById("examModal").classList.contains("open")) saveExam();
+    else if(document.getElementById("marksModal").classList.contains("open")) saveMarks();
+  }
+});
+
+// ── INIT ────────────────────────────────────────────────────────────
+load();
+renderToday();
+setInterval(save,30000);
+</script>
+</body>
+</html>
